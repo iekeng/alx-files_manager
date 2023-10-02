@@ -11,8 +11,10 @@ class DBClient {
     this.client = new MongoClient(this.uri, {
       useUnifiedTopology: true,
     });
-    this.client.connect().then(() => {
-      this.connected = true;
+    this.client.connect()
+    .then(() => {
+        this.db = this.client.db(db);
+        this.connected = true;
     }).catch((error) => {
       console.log(`mongodb error: ${error}`);
     });
