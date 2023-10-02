@@ -4,3 +4,5 @@ node_modules/
 nodemon/
 package.json
 package-lock.json
+nodemon
+.eslintrc.js
