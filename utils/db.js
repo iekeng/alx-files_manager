@@ -1,23 +1,17 @@
-import { MongoClient } from 'mongodb';
+const { MongoClient } = require('mongodb');
 
 class DBClient {
   constructor() {
     const host = process.env.DB_HOST || 'localhost';
     const port = process.env.DB_PORT || 27017;
-    const db = process.env.DB_DATABASE || 'files_manager';
+    const database = process.env.DB_DATABASE || 'files_manager';
 
-    this.uri = `mongodb://${host}:${port}/${db}`;
-    this.connected = false;
-    this.client = new MongoClient(this.uri, {
-      useUnifiedTopology: true,
+    this.client = new MongoClient(`mongodb://${host}:${port}`, { useUnifiedTopology: true });
+    this.client.connect((err) => {
+      if (err) console.log(err);
+      else console.log('Database connected');
     });
-    this.client.connect()
-    .then(() => {
-        this.db = this.client.db(db);
-        this.connected = true;
-    }).catch((error) => {
-      console.log(`mongodb error: ${error}`);
-    });
+    this.db = this.client.db(database);
   }
 
   isAlive() {
