@@ -1,6 +1,5 @@
 import { MongoClient } from 'mongodb';
 
-
 class DBClient {
   constructor() {
     const host = process.env.DB_HOST || 'localhost';
@@ -9,10 +8,14 @@ class DBClient {
 
     this.client = new MongoClient(`mongodb://${host}:${port}`, { useUnifiedTopology: true });
     this.client.connect((err) => {
-      if (err) console.log(err);
-      else console.log('Database connected');
+      if (err) {
+        console.error('Database connection error:', err);
+        throw err;
+      } else {
+        console.log('Database connected');
+        this.db = this.client.db(database);
+      }
     });
-    this.db = this.client.db(database);
   }
 
   isAlive() {
