@@ -1,8 +1,7 @@
 import sha1 from 'sha1';
+import { ObjectId } from 'mongodb';
 import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
-
-const ObjectId = require('mongodb').ObjectId;
 
 class UsersController {
   static async postNew(req, res) {
@@ -37,18 +36,20 @@ class UsersController {
     } catch (error) {
       console.error(error);
       res.status(500).send({ error: 'Internal server error' });
+	  return;
     }
   }
+
   static async getMe(req, res) {
-        const token = req.header('X-Token');
-        if (!token) return res.status(401).send({ error: 'Unauthorized' });
-        const key = `auth_${token}`;
-        const userId = await redisClient.get(key);
-        if (!userId) return res.status(401).send({ error: 'Unauthorized' });
-        const user = await dbClient.users.findOne({ _id: ObjectId(userId) });
-        if (!user) return res.status(401).send({ error: 'Unauthorized' });
-        return res.status(200).send({ id: user._id, email: user.email });
-    }
+    const token = req.header('X-Token');
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
+    const key = `auth_${token}`;
+    const userId = await redisClient.get(key);
+    if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+    const user = await dbClient.users.findOne({ _id: ObjectId(userId) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+    return res.status(200).send({ id: user._id, email: user.email });
+  }
 }
 
 module.exports = UsersController;
