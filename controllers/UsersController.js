@@ -11,27 +11,33 @@ class UsersController {
     try {
       const { email, password } = request.body;
 
-      if (!email || !password) {
-        response.status(400).json({ error: 'Missing email or password' });
+      if (!email) {
+        response.status(400).json({ error: 'Missing email' });
+        return;
+      }
+
+      if (!password) {
+        response.status(400).json({ error: 'Missing password' });
         return;
       }
 
       const users = dbClient.db.collection('users');
-      const user = await users.findOne({ email });
+      const userExists = await users.findOne({ email });
 
-      if (user) {
+      if (userExists) {
         response.status(400).json({ error: 'User already exists' });
-      } else {
-        const hashedPassword = sha1(password);
-        const result = await users.insertOne({
-          email,
-          password: hashedPassword,
-        });
-
-        const { insertedId } = result;
-        response.status(201).json({ id: insertedId, email });
-        userQueue.add({ userId: insertedId });
+        return;
       }
+
+      const hashedPassword = sha1(password);
+      const result = await users.insertOne({
+        email,
+        password: hashedPassword,
+      });
+
+      const { insertedId } = result;
+      response.status(201).json({ id: insertedId, email });
+      userQueue.add({ userId: insertedId });
     } catch (error) {
       console.error(error);
       response.status(500).json({ error: 'Internal server error' });
@@ -41,12 +47,6 @@ class UsersController {
   static async getMe(request, response) {
     try {
       const token = request.header('X-Token');
-
-      if (!token) {
-        response.status(401).json({ error: 'Unauthorized' });
-        return;
-      }
-
       const key = `auth_${token}`;
       const userId = await redisClient.get(key);
 
@@ -61,7 +61,7 @@ class UsersController {
           response.status(401).json({ error: 'Unauthorized' });
         }
       } else {
-        console.log('User not found!');
+        console.log('Not found');
         response.status(401).json({ error: 'Unauthorized' });
       }
     } catch (error) {
