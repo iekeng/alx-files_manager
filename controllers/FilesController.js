@@ -200,49 +200,59 @@ class FilesController {
   }
 
   static async putPublish(request, response) {
-    const user = await FilesController.getUser(request);
-    if (!user) {
-      return response.status(401).json({ error: 'Unauthorized' });
-    }
-    const { id } = request.params;
-    const files = dbClient.db.collection('files');
-    const idObject = new ObjectID(id);
-    const newValue = { $set: { isPublic: true } };
-    const options = { returnOriginal: false };
-
     try {
-      const file = await files.findOneAndUpdate({ _id: idObject, userId: user._id },
-        newValue, options);
-      if (!file.lastErrorObject.updatedExisting) {
+      const user = await FilesController.getUser(request);
+      if (!user) {
+        return response.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const { id } = request.params;
+      const files = dbClient.db.collection('files');
+      const idObject = new ObjectID(id);
+      const newValue = { $set: { isPublic: true } };
+
+      const updatedFile = await files.findOneAndUpdate(
+        { _id: idObject, userId: user._id },
+        newValue,
+        { returnOriginal: false },
+      );
+
+      if (!updatedFile.value) {
         return response.status(404).json({ error: 'Not found' });
       }
-      return response.status(200).json(file.value);
+
+      return response.status(200).json(updatedFile.value);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return response.status(500).json({ error: 'Internal server error' });
     }
   }
 
   static async putUnpublish(request, response) {
-    const user = await FilesController.getUser(request);
-    if (!user) {
-      return response.status(401).json({ error: 'Unauthorized' });
-    }
-    const { id } = request.params;
-    const files = dbClient.db.collection('files');
-    const idObject = new ObjectID(id);
-    const newValue = { $set: { isPublic: false } };
-    const options = { returnOriginal: false };
-
     try {
-      const file = await files.findOneAndUpdate({ _id: idObject, userId: user._id },
-        newValue, options);
-      if (!file.lastErrorObject.updatedExisting) {
+      const user = await FilesController.getUser(request);
+      if (!user) {
+        return response.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const { id } = request.params;
+      const files = dbClient.db.collection('files');
+      const idObject = new ObjectID(id);
+      const newValue = { $set: { isPublic: false } };
+
+      const updatedFile = await files.findOneAndUpdate(
+        { _id: idObject, userId: user._id },
+        newValue,
+        { returnOriginal: false },
+      );
+
+      if (!updatedFile.value) {
         return response.status(404).json({ error: 'Not found' });
       }
-      return response.status(200).json(file.value);
+
+      return response.status(200).json(updatedFile.value);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return response.status(500).json({ error: 'Internal server error' });
     }
   }
