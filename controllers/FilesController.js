@@ -288,7 +288,7 @@ class FilesController {
           return response.header('Content-Type', contentType).status(200).send(data);
         } catch (error) {
           console.log(error);
-          return response.status(500).json({ error: 'Internal server error' });
+          return response.status(404).json({ error: 'Not found' });
         }
       } else if (file.userId.toString() === user._id.toString()) {
         if (file.type === 'folder') {
@@ -305,7 +305,7 @@ class FilesController {
           return response.header('Content-Type', contentType).status(200).sendFile(fileName);
         } catch (error) {
           console.log(error);
-          return response.status(500).json({ error: 'Internal server error' });
+          return response.status(404).json({ error: 'Not found' });
         }
       } else {
         console.log(`Wrong user: file.userId=${file.userId}; userId=${user._id}`);
