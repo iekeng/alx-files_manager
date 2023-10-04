@@ -274,7 +274,7 @@ class FilesController {
 
       if (file.isPublic) {
         if (file.type === 'folder') {
-          return response.status(400).json({ error: 'No content in folder' });
+          return response.status(400).json({ error: "A folder doesn't have content" });
         }
 
         try {
@@ -292,7 +292,7 @@ class FilesController {
         }
       } else if (file.userId.toString() === user._id.toString()) {
         if (file.type === 'folder') {
-          return response.status(400).json({ error: 'No content in folder' });
+          return response.status(400).json({ error: "A folder doesn't have content" });
         }
 
         try {
